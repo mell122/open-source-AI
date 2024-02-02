@@ -1,31 +1,71 @@
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import silhouette_score
+from joblib import dump
 
-# Read CSV file into a DataFrame
-df = pd.read_csv("../output/github_issues.csv")
+# Step 1: Data Collection (Assuming you already have your dataset)
 
-# Combine the title and body columns into a single text column
-df['text'] = df['title'] + df['body']
-df['text'].fillna('', inplace=True)
+# Step 2: Data Preprocessing
+# Load dataset
+data = pd.read_csv('../output/github_issues.csv')
 
-# Split the data into training and testing sets
-train_data = df.sample(frac=0.8, random_state=42)
-test_data = df.drop(train_data.index)
+# Clean data
+data.drop_duplicates(inplace=True)
+data.dropna(subset=['title', 'body'], inplace=True)
 
-# Vectorize the text data using the Bag-of-Words model
-vectorizer = CountVectorizer()
-train_vectors = vectorizer.fit_transform(train_data['text'])
-test_vectors = vectorizer.transform(test_data['text'])
+# Concatenate relevant columns into a single text column
+data['text'] = data['title'] + ' ' + data['body'] + ' ' + data['labels']
 
-# Train a Naive Bayes classifier on the training data
-clf = MultinomialNB()
-clf.fit(train_vectors, train_data['labels'])
+# Step 3: Model Training
+# Define the number of clusters
+num_clusters = 13
 
-# Test the classifier on the testing data
-test_predictions = clf.predict(test_vectors)
+# Create a pipeline with TF-IDF vectorizer and K-means clustering
+pipeline = make_pipeline(
+    TfidfVectorizer(stop_words='english'),
+    KMeans(n_clusters=num_clusters, random_state=42)
+)
 
-# Calculate the accuracy of the classifier
-accuracy = clf.score(test_vectors, test_data['labels'])
+# Train the model
+pipeline.fit(data['text'])
 
-print(f"Accuracy: {accuracy}")
+# Save the trained model
+dump(pipeline, 'model/github_issues.joblib')
+
+# Step 4: Cluster Assignment
+cluster_labels = pipeline.predict(data['text'])
+
+# Step 5: Counting and Aggregation
+cluster_counts = pd.Series(cluster_labels).value_counts().sort_index()
+total_issues = len(data)
+cluster_percentages = (cluster_counts / total_issues) * 100
+
+# Step 6: Labeling
+category_labels = {
+    0: "Missing Content",
+    1: "Unclear Instructions",
+    2: "Discuss Methodology",
+    3: "Extension",
+    4: "Runtime Error",
+    5: "Discuss Implementation",
+    6: "Fail to Replicate",
+    7: "Enhancement",
+    8: "Abnormal Behavior",
+    9: "Paper-Code Misalignment",
+    10: "Supplementary Information",
+    11: "Re-implementation",
+    12: "Others"
+}
+
+# Step 7: Formatting Output
+output = pd.DataFrame({
+    'ID': cluster_counts.index + 1,
+    'Category': [category_labels[i] for i in cluster_counts.index],
+    'No.': cluster_counts.values,
+    'Rate': cluster_percentages.values.round(2)
+})
+
+# Print the formatted output
+print(output)
