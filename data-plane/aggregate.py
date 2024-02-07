@@ -56,4 +56,5 @@ def save_issues_to_csv(issues, file_path):
 repo_owner = cnf["OWNER"]
 repo_name = cnf["REPO"]
 issues = fetch_all_issues(repo_owner, repo_name)
-save_issues_to_csv(issues, "../output/github_issues.csv")
+csvName = "../output/" + cnf["REPO"] + "_issues.csv" 
+save_issues_to_csv(issues, csvName)
