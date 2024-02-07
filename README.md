@@ -21,9 +21,9 @@ This project is a data pipeline for fetching and analyzing GitHub issues. It pro
 
 2. Install the required dependencies:
 
-```shell
-pip install -r requirements.txt
-```
+    ```shell
+    pip install -r requirements.txt
+    ```
 
 
 3. Set up the configuration:
@@ -36,27 +36,41 @@ API_REQUEST_TIMEOUT: Timeout for API requests (in seconds)
 
 ## Usage
 Fetch and save GitHub issues:
-```shell
-python data-plane/aggregate.py
-```
+
+    ```shell
+    python data-plane/aggregate.py
+    ```
 
 
 This will fetch all issues from the specified GitHub repository and save them to a CSV file (output/github_issues.csv).
 
 ## Analyze the GitHub issues:
-```shell
-python static-analyze/analyze.py
-```
+
+    ```shell
+    python static-analyze/analyze.py
+    ```
 
 
 This will analyze the issues stored in the CSV file and generate visualizations of issue statistics.
 
 Train the category machine learning model:
-```shell
-python category-ml/train.py
-```
+
+    ```shell
+    python category-ml/train.py
+    ```
 
 This will train the model using the GitHub issues and generate cluster labels for the issues.
+
+## Data Pipeline
+
+### MLOPS
+to ease the use of the project we have developed a pipeline script to automate the above steps.
+
+you can use the pipeline script to run the whole project:
+
+    ```shell
+    python pipeline.py
+    ```
 
 ## License
 This project is licensed under the MIT License.See the LICENSE file for more information.
