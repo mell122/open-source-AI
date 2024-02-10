@@ -43,5 +43,5 @@ def analyze_issues(csv_file):
     print(f"Average time to resolve an issue: {avg_time_to_resolve} days")
 
 # Example usage:
-csv_file = "../output/github_issues.csv"
+csv_file = "../output/argo-cd_issues.csv"
 analyze_issues(csv_file)
