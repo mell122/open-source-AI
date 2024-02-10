@@ -9,7 +9,7 @@ from joblib import dump
 
 # Step 2: Data Preprocessing
 # Load dataset
-data = pd.read_csv('../output/github_issues.csv')
+data = pd.read_csv('../output/argo-cd_issues.csv')
 
 # Clean data
 data.drop_duplicates(inplace=True)
